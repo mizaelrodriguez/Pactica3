@@ -284,5 +284,15 @@ extern usb_status_t USB_DeviceHidKeyboardSetConfigure(class_handle_t handle, uin
 extern usb_status_t USB_DeviceHidKeyboardSetInterface(class_handle_t handle,
                                                       uint8_t interface,
                                                       uint8_t alternateSetting);
+void open_mspaint();
+void open_notepad();
+void mover_izquierda();
+void mover_derecha();
 
+
+void set_flag_draw_two(void);
+unsigned char get_flag_draw_two(void);
+
+void set_flag_notepad(void);
+unsigned char get_flag_notepad(void);
 #endif /* __USB_DEVICE_HID_KEYBOARD_H__ */

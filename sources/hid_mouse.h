@@ -54,9 +54,8 @@ extern usb_status_t USB_DeviceHidMouseCallback(class_handle_t handle, uint32_t e
 extern usb_status_t USB_DeviceHidMouseSetConfigure(class_handle_t handle, uint8_t configure);
 extern usb_status_t USB_DeviceHidMouseSetInterface(class_handle_t handle, uint8_t interface, uint8_t alternateSetting);
 
-void set_port_flag(void);
-
-unsigned char get_port_flag(void);
+void center_mouse();
+usb_status_t draw_figure();
 
 
 #endif /* __USB_DEVICE_HID_MOUSE_H__ */

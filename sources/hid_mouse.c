@@ -35,15 +35,11 @@
 #include "usb_device_config.h"
 #include "usb.h"
 #include "usb_device.h"
-
 #include "usb_device_class.h"
 #include "usb_device_hid.h"
-
 #include "usb_device_ch9.h"
 #include "usb_device_descriptor.h"
-
 #include "composite.h"
-
 #include "hid_mouse.h"
 #include "hid_keyboard.h"
 
@@ -57,13 +53,15 @@ enum {
 
 // este enum es para dibujar de menera adecuada el cuadrado
 enum {
-	DRAW_RIGHT, DRAW_UP, DRAW_LEFT, DRAW_DOWN, DRAW_FLAG_NOTEPAD
+	DRAW_RIGHT, DRAW_DOWN, DRAW_LEFT, DRAW_UP, DRAW_FLAG_NOTEPAD
 };
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
 static usb_status_t USB_DeviceHidMouseAction(void);
+void center_mouse();
+usb_status_t draw_figure();
 
 /*******************************************************************************
  * Variables
@@ -84,127 +82,11 @@ static usb_device_hid_mouse_struct_t s_UsbDeviceHidMouse;
 /* Update mouse pointer location. Draw a rectangular rotation*/
 static usb_status_t USB_DeviceHidMouseAction(void)
 {
-    static uint8_t state = RIGHT;
-    if (0 == flag_draw)
-    {
-    	switch (state)
-    	    {
-    	        case RIGHT:
-    	            /* Move right. Increase X value. */
-    	            s_UsbDeviceHidMouse.buffer[1] = 1U;
-    	            s_UsbDeviceHidMouse.buffer[2] = 0U;
-    	            x++;
-    	            if (x > 1150U)
-    	            {
-    	                state++;
-    	                x = 0;
-    	            }
-    	            break;
-    	        case UP:
-    	            /* Move up. Discrease Y value. */
-    	            s_UsbDeviceHidMouse.buffer[1] = 0U;
-    	            s_UsbDeviceHidMouse.buffer[2] = (uint8_t)(0xFFU);
-    	            y++;
-    	            if (y > 750U)
-    	            {
-    	                state++;
-    	                y = 0;
-    	            }
-    	            break;
-    	        case LEFT:
-    	            /* Move left. Discrease X value. */
-    	            s_UsbDeviceHidMouse.buffer[1] = (uint8_t)(0xFFU);
-    	            s_UsbDeviceHidMouse.buffer[2] = 0U;
-    	            x++;
-    	            if (x > 575U)
-    	            {
-    	                state++;
-    	                x = 0;
-    	            }
-    	            break;
-    	        case DOWN:
-    	            /* Move down. Increase Y value. */
-    	            s_UsbDeviceHidMouse.buffer[1] = 0U;
-    	            s_UsbDeviceHidMouse.buffer[2] = 1U;
-    	            y++;
-    	            if (y == 375U)
-    	            {
-    	                state++;
-    	                y = 0;
-    	            }
-    	            break;
-    	        case FLAG_DRAW:
-    	        	flag_draw = UP;
-    	        	state++;
-    	            break;
-    	        default:
-    	            break;
-    	    }
-    }
-    else if (UP == flag_draw)
-    {
-		static uint8_t state_two = DRAW_RIGHT;
+	center_mouse();
 
-		switch (state_two)
-		{
-			case DRAW_RIGHT:
-				/* Move right. Increase X value. */
-				s_UsbDeviceHidMouse.buffer[0] = 1U;
-				s_UsbDeviceHidMouse.buffer[1] = 1U;
-				s_UsbDeviceHidMouse.buffer[2] = 0U;
-				x++;
-				if (x == 99U)
-				{
-					x = 0;
-					state_two++;
-				}
-				break;
-		case DRAW_DOWN:
-				/* Move down. Increase Y value. */
-				s_UsbDeviceHidMouse.buffer[0] = 1U;
-				s_UsbDeviceHidMouse.buffer[1] = 0U;
-				s_UsbDeviceHidMouse.buffer[2] = 1U;
-				y++;
-				if (y == 99U)
-				{
-					y = 0;
-					state_two++;
-				}
-				break;
-		case DRAW_LEFT:
-				/* Move left. Discrease X value. */
-				s_UsbDeviceHidMouse.buffer[0] = 1U;
-				s_UsbDeviceHidMouse.buffer[1] = (uint8_t) (0xFFU);
-				s_UsbDeviceHidMouse.buffer[2] = 0U;
-				x++;
-				if (x == 99U)
-				{
-					x = 0;
-					state_two++;
-				}
-				break;
-		case DRAW_UP:
-				/* Move up. Discrease Y value. */
-				s_UsbDeviceHidMouse.buffer[0] = 1U;
-				s_UsbDeviceHidMouse.buffer[1] = 0U;
-				s_UsbDeviceHidMouse.buffer[2] = (uint8_t) (0xFFU);
-				y++;
-				if (y == 99U)
-				{
-					state_two++;
-				}
-				break;
-		case DRAW_FLAG_NOTEPAD:
-			s_UsbDeviceHidMouse.buffer[0] = 0U;
-			s_UsbDeviceHidMouse.buffer[1] = 0U;
-			s_UsbDeviceHidMouse.buffer[2] = 0;
-			flag_notepad = 1;
-			state_two++;
-			break;
-		default:
-			state_two++;
-			break;
-		}
+	if (flag_draw == 1 && get_flag_draw_two() == 1)
+	{
+		return draw_figure();
 	}
 
     return USB_DeviceHidSend(s_UsbDeviceComposite->hidMouseHandle, USB_HID_MOUSE_ENDPOINT_IN,
@@ -269,12 +151,137 @@ usb_status_t USB_DeviceHidMouseInit(usb_device_composite_struct_t *deviceComposi
     return kStatus_USB_Success;
 }
 
-void set_port_flag(void)
+void set_flag_notepad(void)
 {
-	port_flag = 0;
+	flag_notepad = 1;
 }
 
-unsigned char get_port_flag(void)
+unsigned char get_flag_notepad(void)
 {
-	return port_flag;
+	return flag_notepad;
+}
+
+void center_mouse()
+{
+	static uint8_t state = RIGHT;
+	switch (state)
+	{
+	case RIGHT:
+		/* Move right. Increase X value. */
+		s_UsbDeviceHidMouse.buffer[1] = 1U;
+		s_UsbDeviceHidMouse.buffer[2] = 0U;
+		x++;
+		if (x == 1150U)
+		{
+			state++;
+			x = 0;
+		}
+		break;
+	case UP:
+		/* Move up. Discrease Y value. */
+		s_UsbDeviceHidMouse.buffer[1] = 0U;
+		s_UsbDeviceHidMouse.buffer[2] = (uint8_t) (0xFFU);
+		y++;
+		if (y == 750U)
+		{
+			state++;
+			y = 0;
+		}
+		break;
+	case LEFT:
+		/* Move left. Discrease X value. */
+		s_UsbDeviceHidMouse.buffer[1] = (uint8_t) (0xFFU);
+		s_UsbDeviceHidMouse.buffer[2] = 0U;
+		x++;
+		if (x == 575U)
+		{
+			state++;
+			x = 0;
+		}
+		break;
+	case DOWN:
+		/* Move down. Increase Y value. */
+		s_UsbDeviceHidMouse.buffer[1] = 0U;
+		s_UsbDeviceHidMouse.buffer[2] = 1U;
+		y++;
+		if (y == 375U)
+		{
+			state++;
+			y = 0;
+		}
+		break;
+	case FLAG_DRAW:
+		flag_draw = 1;
+		break;
+	default:
+		break;
+	}
+}
+usb_status_t draw_figure()
+{
+			static uint8_t state_two = DRAW_RIGHT;
+
+			s_UsbDeviceHidMouse.buffer[0] = 1U;
+			USB_DeviceHidSend(s_UsbDeviceComposite->hidMouseHandle, USB_HID_MOUSE_ENDPOINT_IN,
+			                             s_UsbDeviceHidMouse.buffer, USB_HID_MOUSE_REPORT_LENGTH);
+
+			switch (state_two)
+			{
+				case DRAW_RIGHT:
+					/* Move right. Increase X value. */
+					s_UsbDeviceHidMouse.buffer[1] = 1U;
+					s_UsbDeviceHidMouse.buffer[2] = 0U;
+					x++;
+					if (x == 99U)
+					{
+						x = 0;
+						state_two++;
+					}
+					break;
+			case DRAW_DOWN:
+					/* Move down. Increase Y value. */
+					s_UsbDeviceHidMouse.buffer[1] = 0U;
+					s_UsbDeviceHidMouse.buffer[2] = 1U;
+					y++;
+					if (y == 99U)
+					{
+						y = 0;
+						state_two++;
+					}
+					break;
+			case DRAW_LEFT:
+					/* Move left. Discrease X value. */
+					s_UsbDeviceHidMouse.buffer[1] = (uint8_t) (0xFFU);
+					s_UsbDeviceHidMouse.buffer[2] = 0U;
+					x++;
+					if (x == 99U)
+					{
+						x = 0;
+						state_two++;
+					}
+					break;
+			case DRAW_UP:
+					/* Move up. Discrease Y value. */
+					s_UsbDeviceHidMouse.buffer[1] = 0U;
+					s_UsbDeviceHidMouse.buffer[2] = (uint8_t) (0xFFU);
+					y++;
+					if (y == 99U)
+					{
+						state_two = 4;
+					}
+					break;
+			case DRAW_FLAG_NOTEPAD:
+				s_UsbDeviceHidMouse.buffer[0] = 0U;
+				s_UsbDeviceHidMouse.buffer[1] = 0U;
+				s_UsbDeviceHidMouse.buffer[2] = 0U;
+				set_flag_notepad();
+				flag_draw = 0;
+				state_two++;
+				break;
+			default:
+				state_two++;
+				break;
+			}
+			return 	USB_DeviceHidSend(s_UsbDeviceComposite->hidMouseHandle, USB_HID_MOUSE_ENDPOINT_IN,
+                    s_UsbDeviceHidMouse.buffer, USB_HID_MOUSE_REPORT_LENGTH);
 }
