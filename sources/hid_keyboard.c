@@ -76,19 +76,21 @@ void open_mspaint();
 void open_notepad();
 void mover_izquierda();
 void mover_derecha();
+void wait();
 
 
 static usb_status_t USB_DeviceHidKeyboardAction(void)
 {
-	static uint8_t wait = 0;
-
 	open_mspaint();
-
+	wait();
 	if(1 == get_flag_notepad())
     {
-    	open_notepad();
+		open_notepad();
+		wait();
     	mover_derecha();
+    	wait();
     	open_notepad();
+    	wait();
     	mover_izquierda();
     }
     return USB_DeviceHidSend(s_UsbDeviceComposite->hidKeyboardHandle, USB_HID_KEYBOARD_ENDPOINT_IN,
@@ -193,7 +195,6 @@ void open_notepad()
 		                s_UsbDeviceHidKeyboard.buffer[3] = KEY_ENTER;
 		                state++;
 		                wait = 0;
-		                set_flag_draw_two();
 		            }
 		            break;
 		        default:
@@ -299,6 +300,7 @@ void mover_derecha()
 	}
 }
 
+
 void set_flag_draw_two(void)
 {
 	flag_draw_two = 1;
@@ -309,3 +311,76 @@ unsigned char get_flag_draw_two(void)
 	return flag_draw_two;
 }
 
+void wait()
+{
+	uint8_t wait = 0;
+	wait++;
+	if(wait = 200)
+	{
+
+	}
+}
+
+void open_texto()
+{
+		static int wait = 0U;
+	    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
+	    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
+	    s_UsbDeviceHidKeyboard.buffer[4] = 0x00U;
+	    s_UsbDeviceHidKeyboard.buffer[5] = 0x00U;
+	    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
+	    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
+	    static uint8_t state = OPEN_EJECUTOR;
+	    switch (state)
+	    {
+	        case OPEN_EJECUTOR:
+	            wait++;
+	            if (200U == wait)
+	            {
+	                s_UsbDeviceHidKeyboard.buffer[2] = KEY_H;
+	                s_UsbDeviceHidKeyboard.buffer[3] = KEY_O;
+	                s_UsbDeviceHidKeyboard.buffer[4] = KEY_L;
+	                s_UsbDeviceHidKeyboard.buffer[5] = KEY_A;
+	                s_UsbDeviceHidKeyboard.buffer[6] = KEY_SPACEBAR;
+	                s_UsbDeviceHidKeyboard.buffer[7] = KEY_M;
+	                state++;
+	                wait = 0;
+	            }
+	            break;
+	        case WRITE_PROGRAM:
+	            wait++;
+	            if (200U == wait)
+	            {
+	                s_UsbDeviceHidKeyboard.buffer[2] = KEY_U;
+	                s_UsbDeviceHidKeyboard.buffer[3] = KEY_N;
+	                s_UsbDeviceHidKeyboard.buffer[4] = KEY_D;
+	                s_UsbDeviceHidKeyboard.buffer[5] = KEY_O;
+	                s_UsbDeviceHidKeyboard.buffer[6] = KEY_SPACEBAR;
+	                s_UsbDeviceHidKeyboard.buffer[7] = KEY_S;
+	                state++;
+	                wait = 0;
+	            }
+	            break;
+	        case WRITE_ENTER:
+	            wait++;
+	            if (200U == wait)
+	            {
+	                s_UsbDeviceHidKeyboard.buffer[2] = KEY_E;
+	                s_UsbDeviceHidKeyboard.buffer[3] = KEY_M;
+	                s_UsbDeviceHidKeyboard.buffer[4] = KEY_B;
+	                s_UsbDeviceHidKeyboard.buffer[5] = KEY_I;
+	                s_UsbDeviceHidKeyboard.buffer[6] = KEY_I;
+	                state++;
+	                wait = 0;
+	            }
+	            break;
+	        default:
+	            wait++;
+	            if (200U == wait)
+	            {
+	            	state++;
+	            	wait = 0;
+	            }
+	            break;
+	    }
+}

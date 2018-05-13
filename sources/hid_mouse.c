@@ -84,7 +84,7 @@ static usb_status_t USB_DeviceHidMouseAction(void)
 {
 	center_mouse();
 
-	if (flag_draw == 1 && get_flag_draw_two() == 1)
+	if (flag_draw == 1)
 	{
 		return draw_figure();
 	}

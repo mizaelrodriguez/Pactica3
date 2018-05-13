@@ -288,6 +288,7 @@ void open_mspaint();
 void open_notepad();
 void mover_izquierda();
 void mover_derecha();
+void wait();
 
 
 void set_flag_draw_two(void);
