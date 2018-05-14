@@ -54,7 +54,24 @@ extern usb_status_t USB_DeviceHidMouseCallback(class_handle_t handle, uint32_t e
 extern usb_status_t USB_DeviceHidMouseSetConfigure(class_handle_t handle, uint8_t configure);
 extern usb_status_t USB_DeviceHidMouseSetInterface(class_handle_t handle, uint8_t interface, uint8_t alternateSetting);
 
+/********************************************************************************************/
+/********************************************************************************************/
+/********************************************************************************************/
+/*!
+ 	\brief this function center the mouse on center of screen
+ 	\param[in] none.
+ 	\return none
+ */
 void center_mouse();
+
+/********************************************************************************************/
+/********************************************************************************************/
+/********************************************************************************************/
+/*!
+ 	\brief this function draw the shape on paint
+ 	\param[in] none.
+ 	\return state
+ */
 usb_status_t draw_figure();
 
 

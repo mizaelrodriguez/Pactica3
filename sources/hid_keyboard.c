@@ -93,8 +93,11 @@ static usb_device_hid_keyboard_struct_t s_UsbDeviceHidKeyboard;
  * Code
  ******************************************************************************/
 
+/* this funtion report the movement or actions in keyboard
+ * */
 static usb_status_t USB_DeviceHidKeyboardAction(void)
 {
+	 /*this code change the actions do it for keyboard */
 	open_mspaint();
 	if (1 == get_flag_notepad())
 	{
@@ -183,8 +186,10 @@ usb_status_t USB_DeviceHidKeyboardInit(usb_device_composite_struct_t *deviceComp
     return kStatus_USB_Success;
 }
 
+/*this function open the notepad and move to window to left*/
 void open_notepad_izquierda()
 {
+	/*clear buffer of keyboard*/
 	static int wait = 0U;
 		    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
 		    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
@@ -193,6 +198,8 @@ void open_notepad_izquierda()
 		    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
 		    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
 		    static uint8_t state = OPEN_EJECUTOR;
+
+		    /*write the name of aplication to opened*/
 		    switch (state)
 		    {
 		        case OPEN_EJECUTOR:
@@ -250,8 +257,10 @@ void open_notepad_izquierda()
 		    }
 }
 
+/*this function open the notepad and move to window to right*/
 void open_notepad_derecha()
 {
+	/*clear buffer of keyboard*/
 	static int wait = 0U;
 		    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
 		    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
@@ -260,6 +269,7 @@ void open_notepad_derecha()
 		    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
 		    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
 		    static uint8_t state = OPEN_EJECUTOR;
+		    /*write the name of aplication to opened*/
 		    switch (state)
 		    {
 		        case OPEN_EJECUTOR:
@@ -317,8 +327,10 @@ void open_notepad_derecha()
 		    }
 }
 
+/*this function open the mspaint*/
 void open_mspaint()
 {
+	/*clear buffer of keyboard*/
 		static int wait = 0U;
 	    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
 	    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
@@ -327,6 +339,7 @@ void open_mspaint()
 	    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
 	    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
 	    static uint8_t state = OPEN_EJECUTOR;
+	    /*write the name of aplication to opened*/
 	    switch (state)
 	    {
 	        case OPEN_EJECUTOR:
@@ -374,16 +387,19 @@ void open_mspaint()
 	    }
 }
 
+/* this funtion send the flag to other file*/
 void set_flag_draw_two(void)
 {
 	flag_draw_two = 1;
 }
 
+/*this function get the flag ion other file*/
 unsigned char get_flag_draw_two(void)
 {
 	return flag_draw_two;
 }
 
+/*this function wait a little time*/
 void sleep()
 {
 	static uint8_t wait = 0;
@@ -394,8 +410,10 @@ void sleep()
 	}
 }
 
+/*this function write the text*/
 void write_texto()
 {
+	/*clear buffer of keyboard*/
 		static uint8_t wait = 0U;
 	    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
 	    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
@@ -404,6 +422,7 @@ void write_texto()
 	    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
 	    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
 	    static uint8_t state = OPEN_EJECUTOR;
+	    /*write the name of aplication to opened*/
 	    switch (state)
 	    {
 	        case OPEN_EJECUTOR:
@@ -458,12 +477,15 @@ void write_texto()
 	            break;
 	    }
 }
+
+/*this function select all text */
 void selecionar_texto()
 {
 	static uint8_t wait = 0;
     s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
     s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
     wait++;
+    /*this is the instruction to use ctrl+e*/
     if (200U == wait)
     {
         s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
@@ -472,6 +494,8 @@ void selecionar_texto()
         function++;
     }
 }
+
+/*this function copy all text */
 void copiar_texto()
 {
 	static uint8_t wait = 0;
@@ -480,12 +504,15 @@ void copiar_texto()
     wait++;
     if (200U < wait)
     {
+    	 /*this is the instruction to use ctrl+c*/
         s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
         s_UsbDeviceHidKeyboard.buffer[3] = KEY_X;
         wait = 0;
         function++;
     }
 }
+
+/*this function peste all text */
 void pegar_texto()
 {
 	static uint8_t wait = 0;
@@ -494,12 +521,15 @@ void pegar_texto()
     wait++;
     if (200U == wait)
     {
+   	 /*this is the instruction to use ctrl+v*/
         s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
         s_UsbDeviceHidKeyboard.buffer[3] = KEY_V;
         wait = 0;
         function++;
     }
 }
+
+/*this function change to window */
 void window_change()
 {
 	static uint8_t wait = 0;
@@ -508,6 +538,7 @@ void window_change()
     wait++;
     if (200U == wait)
     {
+      	 /*this is the instruction to use alt+tab*/
         s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTALT;
         s_UsbDeviceHidKeyboard.buffer[3] = KEY_TAB;
         wait = 0;

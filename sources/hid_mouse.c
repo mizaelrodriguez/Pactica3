@@ -46,12 +46,11 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-// este enum son para acomodar el raton
+
 enum {
 	RIGHT, UP, LEFT, DOWN, FLAG_DRAW
 };
 
-// este enum es para dibujar de menera adecuada el cuadrado
 enum {
 	DRAW_RIGHT, DRAW_DOWN, DRAW_LEFT, DRAW_UP, DRAW_FLAG_NOTEPAD
 };
@@ -85,11 +84,13 @@ uint8_t finished_painting = 0;
 /* Update mouse pointer location. Draw a rectangular rotation*/
 static usb_status_t USB_DeviceHidMouseAction(void)
 {
+	/*this instruction center the mouse*/
 	if(flag_draw == 0)
 	{
 		center_mouse();
 	}
 
+	/*this function draw the figure an stoped the mouse */
 	else if(flag_draw == 1  && (0 == finished_painting) )
 	{
 		return draw_figure();
@@ -157,21 +158,26 @@ usb_status_t USB_DeviceHidMouseInit(usb_device_composite_struct_t *deviceComposi
     s_UsbDeviceHidMouse.buffer = s_MouseBuffer;
     return kStatus_USB_Success;
 }
+
+/*this funtion set the flag tho other function*/
 void set_flag_notepad(void)
 {
 	flag_notepad = 1;
 }
 
+/*this function get the flag in other file*/
 unsigned char get_flag_notepad(void)
 {
 	return flag_notepad;
 }
 
+/*this function center to mouse at screen */
 void center_mouse()
 {
 	static uint8_t state = RIGHT;
 	switch (state)
 	{
+	/*this instructions move the mouse at screen  */
 	case RIGHT:
 		/* Move right. Increase X value. */
 		s_UsbDeviceHidMouse.buffer[1] = 1U;
@@ -223,6 +229,8 @@ void center_mouse()
 		break;
 	}
 }
+
+/*this function draw the figure in paint*/
 usb_status_t draw_figure()
 {
 			static uint8_t state_two = DRAW_RIGHT;
@@ -230,7 +238,7 @@ usb_status_t draw_figure()
 			s_UsbDeviceHidMouse.buffer[0] = 1U;
 			USB_DeviceHidSend(s_UsbDeviceComposite->hidMouseHandle, USB_HID_MOUSE_ENDPOINT_IN,
 			                             s_UsbDeviceHidMouse.buffer, USB_HID_MOUSE_REPORT_LENGTH);
-
+			/*this instructions move the mouse at screen  */
 			switch (state_two)
 			{
 				case DRAW_RIGHT:
@@ -281,7 +289,6 @@ usb_status_t draw_figure()
 				s_UsbDeviceHidMouse.buffer[1] = 0U;
 				s_UsbDeviceHidMouse.buffer[2] = 0U;
 				set_flag_notepad();
-//				flag_draw = 0;
 				finished_painting = 1;
 				state_two++;
 				break;
