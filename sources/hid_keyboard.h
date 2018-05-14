@@ -289,7 +289,12 @@ void open_mspaint();
 void open_notepad_izquierda();
 void open_notepad_derecha();
 void write_texto();
-void wait();
+void selecionar_texto();
+void copiar_texto();
+void pegar_texto();
+
+
+void sleep();
 
 
 void set_flag_draw_two(void);

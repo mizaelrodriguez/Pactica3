@@ -238,7 +238,7 @@ usb_status_t draw_figure()
 					s_UsbDeviceHidMouse.buffer[1] = 1U;
 					s_UsbDeviceHidMouse.buffer[2] = 0U;
 					x++;
-					if (x == 99U)
+					if (x == 120U)
 					{
 						x = 0;
 						state_two++;
@@ -249,7 +249,7 @@ usb_status_t draw_figure()
 					s_UsbDeviceHidMouse.buffer[1] = 0U;
 					s_UsbDeviceHidMouse.buffer[2] = 1U;
 					y++;
-					if (y == 99U)
+					if (y == 120U)
 					{
 						y = 0;
 						state_two++;
@@ -260,7 +260,7 @@ usb_status_t draw_figure()
 					s_UsbDeviceHidMouse.buffer[1] = (uint8_t) (0xFFU);
 					s_UsbDeviceHidMouse.buffer[2] = 0U;
 					x++;
-					if (x == 99U)
+					if (x == 120U)
 					{
 						x = 0;
 						state_two++;
@@ -271,7 +271,7 @@ usb_status_t draw_figure()
 					s_UsbDeviceHidMouse.buffer[1] = 0U;
 					s_UsbDeviceHidMouse.buffer[2] = (uint8_t) (0xFFU);
 					y++;
-					if (y == 99U)
+					if (y == 120U)
 					{
 						state_two = 4;
 					}

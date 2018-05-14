@@ -64,7 +64,10 @@ void open_mspaint();
 void open_notepad_izquierda();
 void open_notepad_derecha();
 void write_texto();
-void wait();
+void selecionar_texto();
+void copiar_texto();
+void pegar_texto();
+void sleep();
 
 /*******************************************************************************
  * Variables
@@ -72,7 +75,8 @@ void wait();
 uint8_t flag_draw_two = 0;
 uint8_t notepad = 0;
 uint8_t write = 0;
-
+uint8_t choose = 0;
+uint8_t copy = 0;
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_KeyboardBuffer[USB_HID_KEYBOARD_REPORT_LENGTH];
 static usb_device_composite_struct_t *s_UsbDeviceComposite;
 static usb_device_hid_keyboard_struct_t s_UsbDeviceHidKeyboard;
@@ -84,21 +88,24 @@ static usb_device_hid_keyboard_struct_t s_UsbDeviceHidKeyboard;
 static usb_status_t USB_DeviceHidKeyboardAction(void)
 {
 	open_mspaint();
-	wait();
+	sleep();
 	if (1 == get_flag_notepad())
 	{
 		if (notepad == 0)
 		{
-			open_notepad_izquierda();
-			wait();
+			open_notepad_derecha();
 		}
 		if (notepad == 1)
 		{
-			open_notepad_derecha();
+			open_notepad_izquierda();
 		}
 		if (write == 1)
 		{
 			write_texto();
+		}
+		if (choose == 1)
+		{
+			selecionar_texto();
 		}
 
 	}
@@ -224,7 +231,7 @@ void open_notepad_izquierda()
 		            {
 		            	state++;
 		            	wait = 0;
-		            	notepad = 1;
+		            	write = 1;
 		            }
 		            break;
 		    }
@@ -292,7 +299,7 @@ void open_notepad_derecha()
 		            {
 		            	state++;
 		            	wait = 0;
-		            	write = 1;
+		            	notepad = 1;
 		            }
 		            break;
 		    }
@@ -366,9 +373,9 @@ unsigned char get_flag_draw_two(void)
 	return flag_draw_two;
 }
 
-void wait()
+void sleep()
 {
-	uint8_t wait = 0;
+	static uint8_t wait = 0;
 	wait++;
 	if(wait = 200)
 	{
@@ -400,7 +407,8 @@ void write_texto()
 	                s_UsbDeviceHidKeyboard.buffer[7] = KEY_M;
 	                state++;
 	                wait = 0;
-	            }
+	              }
+
 	            break;
 	        case WRITE_PROGRAM:
 	            wait++;
@@ -429,13 +437,59 @@ void write_texto()
 	                wait = 0;
 	            }
 	            break;
+	        case MOVE:
+	        	wait++;
+	        	if(200U == wait)
+	        	{
+	                s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
+	                s_UsbDeviceHidKeyboard.buffer[3] = KEY_E;
+	                state++;
+	                wait = 0;
+	        	}
 	        default:
 	            wait++;
 	            if (200U == wait)
 	            {
 	            	state++;
 	            	wait = 0;
+	            	choose = 0;
 	            }
 	            break;
 	    }
+}
+void selecionar_texto()
+{
+	static uint8_t wait = 0;
+    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
+    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
+    if (200U == wait)
+    {
+        s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
+        s_UsbDeviceHidKeyboard.buffer[3] = KEY_E;
+        wait = 0;
+        copy = 1;
+    }
+}
+void copiar_texto()
+{
+	static uint8_t wait = 0;
+    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
+    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
+    if (200U == wait)
+    {
+        s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
+        s_UsbDeviceHidKeyboard.buffer[3] = KEY_C;
+        wait = 0;
+        //copy = 1;
+    }
+}
+void pegar_texto()
+{
+	static uint8_t wait = 0;
+    if (200U == wait)
+    {
+        s_UsbDeviceHidKeyboard.buffer[2] = KEY_LEFTCONTROL;
+        s_UsbDeviceHidKeyboard.buffer[3] = KEY_E;
+        wait = 0;
+    }
 }

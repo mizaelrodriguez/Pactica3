@@ -386,7 +386,7 @@ int main(void)
 void main(void)
 #endif
 {
-    BOARD_InitPins();
+	BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
