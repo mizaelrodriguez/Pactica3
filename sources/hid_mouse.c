@@ -292,4 +292,3 @@ usb_status_t draw_figure()
 			return 	USB_DeviceHidSend(s_UsbDeviceComposite->hidMouseHandle, USB_HID_MOUSE_ENDPOINT_IN,
                     s_UsbDeviceHidMouse.buffer, USB_HID_MOUSE_REPORT_LENGTH);
 }
-

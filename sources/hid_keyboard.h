@@ -292,16 +292,12 @@ void write_texto();
 void selecionar_texto();
 void copiar_texto();
 void pegar_texto();
-
-
+void window_change();
 void sleep();
-
-
+void clear();
 void set_flag_draw_two(void);
 unsigned char get_flag_draw_two(void);
-
 void set_flag_notepad(void);
 unsigned char get_flag_notepad(void);
-
 
 #endif /* __USB_DEVICE_HID_KEYBOARD_H__ */
