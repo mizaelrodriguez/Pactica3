@@ -46,55 +46,66 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+enum
+{
+    OPEN_EJECUTOR,
+    WRITE_PROGRAM,
+	WRITE_ENTER,
+	MOVE
+};
+
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
 static usb_status_t USB_DeviceHidKeyboardAction(void);
-uint8_t flag_draw_two = 0;
+void open_mspaint();
+void open_notepad_izquierda();
+void open_notepad_derecha();
+void write_texto();
+void wait();
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+uint8_t flag_draw_two = 0;
+uint8_t notepad = 0;
+uint8_t write = 0;
 
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_KeyboardBuffer[USB_HID_KEYBOARD_REPORT_LENGTH];
 static usb_device_composite_struct_t *s_UsbDeviceComposite;
 static usb_device_hid_keyboard_struct_t s_UsbDeviceHidKeyboard;
 
-enum
-{
-    OPEN_EJECUTOR,
-    WRITE_PROGRAM,
-	WRITE_ENTER
-};
-
 /*******************************************************************************
  * Code
  ******************************************************************************/
-void open_mspaint();
-void open_notepad();
-void mover_izquierda();
-void mover_derecha();
-void wait();
-
 
 static usb_status_t USB_DeviceHidKeyboardAction(void)
 {
 	open_mspaint();
 	wait();
-	if(1 == get_flag_notepad())
-    {
-		open_notepad();
-		wait();
-    	mover_derecha();
-    	wait();
-    	open_notepad();
-    	wait();
-    	mover_izquierda();
-    }
-    return USB_DeviceHidSend(s_UsbDeviceComposite->hidKeyboardHandle, USB_HID_KEYBOARD_ENDPOINT_IN,
-                             s_UsbDeviceHidKeyboard.buffer, USB_HID_KEYBOARD_REPORT_LENGTH);
+	if (1 == get_flag_notepad())
+	{
+		if (notepad == 0)
+		{
+			open_notepad_izquierda();
+			wait();
+		}
+		if (notepad == 1)
+		{
+			open_notepad_derecha();
+		}
+		if (write == 1)
+		{
+			write_texto();
+		}
+
+	}
+	return USB_DeviceHidSend(s_UsbDeviceComposite->hidKeyboardHandle,
+			USB_HID_KEYBOARD_ENDPOINT_IN, s_UsbDeviceHidKeyboard.buffer,
+			USB_HID_KEYBOARD_REPORT_LENGTH);
+
 }
 
 usb_status_t USB_DeviceHidKeyboardCallback(class_handle_t handle, uint32_t event, void *param)
@@ -151,7 +162,7 @@ usb_status_t USB_DeviceHidKeyboardInit(usb_device_composite_struct_t *deviceComp
     return kStatus_USB_Success;
 }
 
-void open_notepad()
+void open_notepad_izquierda()
 {
 	static int wait = 0U;
 		    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
@@ -197,12 +208,91 @@ void open_notepad()
 		                wait = 0;
 		            }
 		            break;
+		        case MOVE:
+		            wait++;
+		            if (200U == wait)
+		            {
+			    		s_UsbDeviceHidKeyboard.buffer[2] = KEY_RIGHT_GUI;
+			    		s_UsbDeviceHidKeyboard.buffer[3] = KEY_KEYPAD_4_LEFT_ARROW;
+		                state++;
+		                wait = 0;
+		            }
+		            break;
 		        default:
 		            wait++;
 		            if (200U == wait)
 		            {
 		            	state++;
 		            	wait = 0;
+		            	notepad = 1;
+		            }
+		            break;
+		    }
+}
+
+void open_notepad_derecha()
+{
+	static int wait = 0U;
+		    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
+		    s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
+		    s_UsbDeviceHidKeyboard.buffer[4] = 0x00U;
+		    s_UsbDeviceHidKeyboard.buffer[5] = 0x00U;
+		    s_UsbDeviceHidKeyboard.buffer[6] = 0x00U;
+		    s_UsbDeviceHidKeyboard.buffer[7] = 0x00U;
+		    static uint8_t state = OPEN_EJECUTOR;
+		    switch (state)
+		    {
+		        case OPEN_EJECUTOR:
+		            wait++;
+		            if (200U == wait)
+		            {
+		                s_UsbDeviceHidKeyboard.buffer[2] = KEY_RIGHT_GUI;
+		                s_UsbDeviceHidKeyboard.buffer[3] = KEY_R;
+		                state++;
+		                wait = 0;
+		            }
+		            break;
+		        case WRITE_PROGRAM:
+		            wait++;
+		            if (200U == wait)
+		            {
+		                s_UsbDeviceHidKeyboard.buffer[2] = KEY_N;
+		                s_UsbDeviceHidKeyboard.buffer[3] = KEY_O;
+		                s_UsbDeviceHidKeyboard.buffer[4] = KEY_T;
+		                s_UsbDeviceHidKeyboard.buffer[5] = KEY_E;
+		                s_UsbDeviceHidKeyboard.buffer[6] = KEY_P;
+		                s_UsbDeviceHidKeyboard.buffer[7] = KEY_A;
+		                state++;
+		                wait = 0;
+		            }
+		            break;
+		        case WRITE_ENTER:
+		            wait++;
+		            if (200U == wait)
+		            {
+		                s_UsbDeviceHidKeyboard.buffer[2] = KEY_D;
+		                s_UsbDeviceHidKeyboard.buffer[3] = KEY_ENTER;
+		                state++;
+		                wait = 0;
+		            }
+		            break;
+		        case MOVE:
+		            wait++;
+		            if (200U == wait)
+		            {
+			    		s_UsbDeviceHidKeyboard.buffer[2] = KEY_RIGHT_GUI;
+			    		s_UsbDeviceHidKeyboard.buffer[3] = KEY_KEYPAD_6_RIGHT_ARROW; //KEY_KEYPAD_4_LEFT_ARROW
+		                state++;
+		                wait = 0;
+		            }
+		            break;
+		        default:
+		            wait++;
+		            if (200U == wait)
+		            {
+		            	state++;
+		            	wait = 0;
+		            	write = 1;
 		            }
 		            break;
 		    }
@@ -266,41 +356,6 @@ void open_mspaint()
 	    }
 }
 
-void mover_izquierda()
-{
-	static int wait = 0U;
-	s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
-	s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
-	s_UsbDeviceHidKeyboard.buffer[4] = 0x00U;
-
-	wait++;
-	if(200 == wait)
-	{
-		s_UsbDeviceHidKeyboard.buffer[2] = KEY_RIGHT_GUI;
-		s_UsbDeviceHidKeyboard.buffer[3] = KEY_LEFTARROW;
-		s_UsbDeviceHidKeyboard.buffer[4] = KEY_ESCAPE;
-		wait = 0;
-	}
-}
-
-void mover_derecha()
-{
-	static int wait = 0U;
-	s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;
-	s_UsbDeviceHidKeyboard.buffer[3] = 0x00U;
-	s_UsbDeviceHidKeyboard.buffer[4] = 0x00U;
-
-	wait++;
-	if(200 == wait)
-	{
-		s_UsbDeviceHidKeyboard.buffer[2] = KEY_RIGHT_GUI;
-		s_UsbDeviceHidKeyboard.buffer[3] = KEY_RIGHTARROW;
-		s_UsbDeviceHidKeyboard.buffer[4] = KEY_ESCAPE;
-		wait = 0;
-	}
-}
-
-
 void set_flag_draw_two(void)
 {
 	flag_draw_two = 1;
@@ -321,7 +376,7 @@ void wait()
 	}
 }
 
-void open_texto()
+void write_texto()
 {
 		static int wait = 0U;
 	    s_UsbDeviceHidKeyboard.buffer[2] = 0x00U;

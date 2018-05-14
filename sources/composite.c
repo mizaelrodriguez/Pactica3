@@ -345,6 +345,41 @@ static void USB_DeviceApplicationInit(void)
     USB_DeviceRun(g_UsbDeviceComposite.deviceHandle);
 }
 
+#if USB_DEVICE_CONFIG_USE_TASK
+void USB_DeviceTask(void *handle)
+{
+    while (1U)
+    {
+        USB_DeviceTaskFn(handle);
+    }
+}
+#endif
+
+void APP_task(void *handle)
+{
+    USB_DeviceApplicationInit();
+
+#if USB_DEVICE_CONFIG_USE_TASK
+    if (g_UsbDeviceComposite.deviceHandle)
+    {
+        if (xTaskCreate(USB_DeviceTask,                        /* pointer to the task */
+                        "usb device task",                     /* task name for kernel awareness debugging */
+                        5000L / sizeof(portSTACK_TYPE),        /* task stack size */
+                        g_UsbDeviceComposite.deviceHandle,     /* optional task startup argument */
+                        5U,                                    /* initial priority */
+                        &g_UsbDeviceComposite.deviceTaskHandle /* optional task handle to create */
+                        ) != pdPASS)
+        {
+            usb_echo("usb device task create failed!\r\n");
+            return;
+        }
+    }
+#endif
+
+    while (1U)
+    {
+    }
+}
 #if defined(__CC_ARM) || defined(__GNUC__)
 int main(void)
 #else
@@ -355,12 +390,25 @@ void main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    USB_DeviceApplicationInit();
-
-    while (1U)
+    if (xTaskCreate(APP_task,                                   /* pointer to the task */
+                    "app task",                                 /* task name for kernel awareness debugging */
+                    5000L / sizeof(portSTACK_TYPE),             /* task stack size */
+                    &g_UsbDeviceComposite,                      /* optional task startup argument */
+                    4U,                                         /* initial priority */
+                    &g_UsbDeviceComposite.applicationTaskHandle /* optional task handle to create */
+                    ) != pdPASS)
     {
-#if USB_DEVICE_CONFIG_USE_TASK
-        USB_DeviceTaskFn(g_UsbDeviceComposite.deviceHandle);
+        usb_echo("app task create failed!\r\n");
+#if (defined(__CC_ARM) || defined(__GNUC__))
+        return 1U;
+#else
+        return;
 #endif
     }
+
+    vTaskStartScheduler();
+
+#if (defined(__CC_ARM) || defined(__GNUC__))
+    return 1U;
+#endif
 }

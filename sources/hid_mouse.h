@@ -57,5 +57,4 @@ extern usb_status_t USB_DeviceHidMouseSetInterface(class_handle_t handle, uint8_
 void center_mouse();
 usb_status_t draw_figure();
 
-
 #endif /* __USB_DEVICE_HID_MOUSE_H__ */

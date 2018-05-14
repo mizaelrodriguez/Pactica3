@@ -35,6 +35,10 @@
 #ifndef __USB_DEVICE_COMPOSITE_H__
 #define __USB_DEVICE_COMPOSITE_H__
 
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "event_groups.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -52,13 +56,19 @@
 #define CONTROLLER_ID kUSB_ControllerLpcIp3511Hs0
 #endif
 
+#if defined(__GIC_PRIO_BITS)
+#define USB_DEVICE_INTERRUPT_PRIORITY (25U)
+#else
 #define USB_DEVICE_INTERRUPT_PRIORITY (3U)
+#endif
 
 typedef struct _usb_device_composite_struct
 {
     usb_device_handle deviceHandle;
     class_handle_t hidMouseHandle;
     class_handle_t hidKeyboardHandle;
+    TaskHandle_t applicationTaskHandle;
+    TaskHandle_t deviceTaskHandle;
     uint8_t speed;
     uint8_t attach;
     uint8_t currentConfiguration;
